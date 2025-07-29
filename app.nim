@@ -1,6 +1,7 @@
 import std/[strformat, strutils, random, times]
 
 import prologue
+import prologue/middlewares/staticfile
 import db_connector/db_sqlite
 import karax/[karaxdsl, vdom]
 import ./unlockc
@@ -32,7 +33,7 @@ if not db.tryExec(sql"SELECT COUNT(*) FROM codes"):
                                     created_by TEXT,
                                     created_at DATETIME)""")
 if not db.tryExec(sql"SELECT COUNT(*) FROM admin_codes"):
-  echo "Creating asmin_codes table"
+  echo "Creating admin_codes table"
   db.exec(sql"CREATE TABLE admin_codes (id INTEGER PRIMARY KEY, name TEXT NOT NULL, code TEXT NOT NULL)")
 db.close()
 
@@ -41,11 +42,12 @@ template page(inner: untyped) : untyped =
     let vn = buildhtml(html):
       head:
         title: text "Soap factory lock"
-        body:
-          img(src=banner)
-          h1: text "Soap Factory Door"
-          hr()
-          inner
+        link(rel="stylesheet", href="/static/style.css")
+      body:
+        img(src=banner)
+        h1: text "Soap Factory Door"
+        hr()
+        inner
     $vn
 
 template nope(ninner: untyped): untyped =
@@ -265,7 +267,8 @@ proc admin_create*(ctx: Context) {.async.} =
           input(`type`="submit", value="create")
 
 when isMainModule:  
-  let app = newApp()
+  var app = newApp()
+  app.use(staticFileMiddleware("static"))
   app.get("/", hello)
   # app.get("/logo.png", logo)
   app.addRoute("/unlock/{code}", unlock, @[HttpGet, HttpPost])

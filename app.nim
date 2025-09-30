@@ -228,8 +228,8 @@ proc admin_create*(ctx: Context) {.async.} =
       vFrom = ctx.getFormParams("valid-from", "")
       vTo = ctx.getFormParams("valid-to", "")
     try:
-      vFrom = $vFrom.parseTime("yyyy-MM-dd'T'HH:mm", utc()).toUnix()
-      vTo = $vTo.parseTime("yyyy-MM-dd'T'HH:mm", utc()).toUnix()
+      vFrom = $vFrom.parseTime("yyyy-MM-dd'T'HH:mm", local()).toUnix()
+      vTo = $vTo.parseTime("yyyy-MM-dd'T'HH:mm", local()).toUnix()
     except Exception as e:
       echo e.msg
         
